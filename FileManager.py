@@ -1,4 +1,6 @@
 import tkinter as tk
+
+from OcrPdf import OcrPdf
 import Utils
 import ConvertDirectoryToPdf
 import ConvertFileToPdf
@@ -36,6 +38,12 @@ class FileManagerApp:
             command=lambda: self.notebook.select(self.merge_pdf_page)
         )
         self.button_merge_pdf_page.pack(side="top", pady=10, padx=5, fill="x")
+        self.button_ocr_pdf_page = tk.Button(
+            self.sidebar_frame,
+            text="OCR PDF",
+            command=lambda: self.notebook.select(self.ocr_pdf_page)
+        )
+        self.button_ocr_pdf_page.pack(side="top", pady=10, padx=5, fill="x")
 
         # Create a notebook (tabbed widget) for different views
         self.notebook = ttk.Notebook(root)
@@ -45,13 +53,16 @@ class FileManagerApp:
         self.convert_directory_page = tk.Frame(self.notebook)
         self.convert_file_page = tk.Frame(self.notebook)
         self.merge_pdf_page = tk.Frame(self.notebook)
+        self.ocr_pdf_page = tk.Frame(self.notebook)
         self.notebook.add(self.convert_directory_page, text="Convert Directory")
         self.notebook.add(self.convert_file_page, text="Convert File")
         self.notebook.add(self.merge_pdf_page, text="Merge PDFs")
+        self.notebook.add(self.ocr_pdf_page, text="OCR PDF")
 
         self.create_convert_directory_widgets()
         self.create_convert_file_widgets()
         self.create_merge_pdf_files_widgets()
+        self.create_ocr_pdf_page()
 
     def create_convert_directory_widgets(self):
         self.convert_directory_var = tk.StringVar()
@@ -163,9 +174,18 @@ class FileManagerApp:
             self.convert_file_button["state"] = "normal"
 
             content_width = len(file_path) + 10
-
             self.convert_file_combobox_width = max(content_width, self.convert_file_combobox_width)
-            self.convert_file_combobox.configure(width=self.convert_directory_combobox_width)
+            self.convert_file_combobox.configure(width=self.convert_file_combobox_width)
+
+    def select_ocr_pdf_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf")])
+        if file_path:
+            self.ocr_pdf_var.set(file_path)
+            self.ocr_pdf_button["state"] = "normal"
+
+            content_width = len(file_path) + 10
+            self.ocr_pdf_combobox_width = max(content_width, self.ocr_pdf_combobox_width)
+            self.ocr_pdf_combobox.configure(width=self.ocr_pdf_combobox_width)
 
     def perform_file_conversion(self):
         file_path = self.convert_file_var.get()
@@ -253,6 +273,53 @@ class FileManagerApp:
 
     def start_merger(self, merge_file_list):
         MergePdfs.merge_pdfs(merge_file_list, self.status_label)
+
+    def create_ocr_pdf_page(self):
+        self.ocr_pdf_var = tk.StringVar()
+        self.ocr_pdf_combobox_width = 50
+        self.ocr_pdf_combobox = ttk.Combobox(
+            self.ocr_pdf_page,
+            textvariable=self.ocr_pdf_var,
+            state="readonly",
+            width=self.ocr_pdf_combobox_width
+        )
+        self.ocr_pdf_combobox.pack(pady=10, padx=10)
+        self.ocr_pdf_combobox.bind("<Button-1>", lambda event: self.select_ocr_pdf_file())
+
+        label_ocr_pdf = tk.Label(
+            self.ocr_pdf_page,
+            text="Please select PDF file."
+        )
+        label_ocr_pdf.pack(pady=10)
+
+        self.ocr_pdf_button = tk.Button(
+            self.ocr_pdf_page,
+            text="OCR File",
+            command=self.perform_ocr,
+            state="disabled"
+        )
+        self.ocr_pdf_button.pack(pady=10)
+
+        separator = ttk.Separator(self.ocr_pdf_page, orient="horizontal")
+        separator.pack(fill="x", pady=10)
+
+        self.ocr_pdf_events_text = tk.Text(self.ocr_pdf_page, height=30, width=120)
+        self.ocr_pdf_events_text.pack(pady=10)
+
+        self.clear_ocr_pdf_widget_button = tk.Button(
+            self.ocr_pdf_page,
+            text="Clear Log",
+            command=self.clear_ocr_pdf_widget
+        )
+        self.clear_ocr_pdf_widget_button.pack(pady=10)
+
+    def perform_ocr(self):
+        file_path = self.ocr_pdf_var.get()
+        if file_path:
+            OcrPdf.perform_ocr(file_path, self.ocr_pdf_events_text)
+
+    def clear_ocr_pdf_widget(self):
+        Utils.clear_widget(self.ocr_pdf_events_text)
 
 
 if __name__ == "__main__":

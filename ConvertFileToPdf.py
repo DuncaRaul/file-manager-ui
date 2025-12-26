@@ -19,18 +19,18 @@ def generate_pdf(file_path, text_widget):
     extension = file_path.lower().split(".")[-1]
     try:
         if extension == "txt":
-            convert_text_to_pdf(file_path, text_widget)
+            convert_text_to_pdf(file_path)
         elif extension == "docx":
-            convert_word_to_pdf(file_path, text_widget)
+            convert_word_to_pdf(file_path)
         elif extension in ("jpg", "png"):
-            convert_image_to_pdf(file_path, text_widget)
+            convert_image_to_pdf(file_path)
         else:
             log_event(text_widget, "Unsupported file type\n")
     except Exception as e:
         log_event(text_widget, f"Error during conversion: {str(e)}\n")
 
 
-def convert_text_to_pdf(input_file, text_widget):
+def convert_text_to_pdf(input_file):
     output_pdf = input_file.replace(".txt", ".pdf")
 
     with open(input_file, 'r') as text_file:
@@ -44,12 +44,12 @@ def convert_text_to_pdf(input_file, text_widget):
         pdf.output(output_pdf)
 
 
-def convert_word_to_pdf(input_file, text_widget):
+def convert_word_to_pdf(input_file):
     output_pdf = input_file.replace(".docx", ".pdf")
     convert(input_file, output_pdf)
 
 
-def convert_image_to_pdf(input_file, text_widget):
+def convert_image_to_pdf(input_file):
     output_pdf = input_file.replace(".jpg", ".pdf")
 
     img = Image.open(input_file)

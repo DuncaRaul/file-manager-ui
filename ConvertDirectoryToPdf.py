@@ -8,7 +8,7 @@ from threading import Thread
 
 def convert_directory(directory_path, text_widget):
     def process_directory():
-        manga_list = get_all_subdirectories(directory_path + "/")
+        pdf_list = get_all_subdirectories(directory_path + "/")
         pdf_directory = directory_path + "/PDFS"
         os.makedirs(pdf_directory, exist_ok=True)
         log_file_path = directory_path + "/LOG.txt"
@@ -17,18 +17,30 @@ def convert_directory(directory_path, text_widget):
         with open(log_file_path, 'w') as log_file:
             log_file.write(f"Log file created at: {datetime.now()}\n")
 
-            for manga in manga_list:
-                sub_directory_paths = get_all_subdirectories(manga)
-                pdf_file_name = get_pdf_file_name(directory_path, manga, sub_directory_paths)
-                log_event(text_widget, f"Processing started for {pdf_file_name[:-1]}\n")
+            if len(pdf_list) == 0:
+                log_event(text_widget, f"Processing started for PDF\n")
+                combine_images_no_subdirectory(directory_path, log_file)
+                log_event(text_widget, f"Processing completed for PDF\n")
+            else:
+                for manga in pdf_list:
+                    sub_directory_paths = get_all_subdirectories(manga)
+                    pdf_file_name = get_pdf_file_name(directory_path, manga, sub_directory_paths)
+                    log_event(text_widget, f"Processing started for {pdf_file_name[:-1]}\n")
 
-                combine_images_into_pdf(manga, sub_directory_paths, output_directory, pdf_file_name, log_file)
+                    combine_images_into_pdf(manga, sub_directory_paths, output_directory, pdf_file_name, log_file)
 
-                log_event(text_widget, f"Processing completed for {pdf_file_name[:-1]}\n")
+                    log_event(text_widget, f"Processing completed for {pdf_file_name[:-1]}\n")
 
             log_event(text_widget, "Conversion completed.")
 
     Thread(target=process_directory, daemon=True).start()
+
+
+def combine_images_no_subdirectory(directory_path, log_file):
+    final_file_path = f"{directory_path}/PDFS/PDF.pdf"
+    with open(final_file_path, 'wb') as pdf_file:
+        log_file.write(f"Chapter done = {final_file_path[2:]}\n")
+        pdf_file.write(convert(get_image_path_list(directory_path)))
 
 
 def combine_images_into_pdf(manga, sub_directory_paths, pdf_path, pdf_file_name, log_file):

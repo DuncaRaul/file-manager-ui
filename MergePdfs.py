@@ -8,7 +8,7 @@ def merge_pdfs(input_pdfs, status_label):
         Utils.write_label_message(status_label, "Error: No input PDFs provided.")
         return
 
-    first_pdf = input_pdfs[0]  # Use the first PDF in the list
+    first_pdf = input_pdfs[0]
     output_pdf = os.path.join(os.path.dirname(first_pdf), "merge_result.pdf")
 
     try:
