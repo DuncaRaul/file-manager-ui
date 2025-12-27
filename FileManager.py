@@ -49,16 +49,17 @@ class FileManagerApp:
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
-        # Create the pages and add them to the notebook
+        # Create the pages
         self.convert_directory_page = tk.Frame(self.notebook)
         self.convert_file_page = tk.Frame(self.notebook)
         self.merge_pdf_page = tk.Frame(self.notebook)
         self.ocr_pdf_page = tk.Frame(self.notebook)
+        # Add the pages to the notebook
         self.notebook.add(self.convert_directory_page, text="Convert Directory")
         self.notebook.add(self.convert_file_page, text="Convert File")
         self.notebook.add(self.merge_pdf_page, text="Merge PDFs")
         self.notebook.add(self.ocr_pdf_page, text="OCR PDF")
-
+        # Create the widgets
         self.create_convert_directory_widgets()
         self.create_convert_file_widgets()
         self.create_merge_pdf_files_widgets()
@@ -93,7 +94,7 @@ class FileManagerApp:
 
         # Create a Text widget for displaying events
         self.convert_directory_events_text = tk.Text(self.convert_directory_page, height=30, width=120)
-        self.convert_directory_events_text.pack(pady=10)
+        self.convert_directory_events_text.pack(pady=10, padx=10, fill="both", expand=True)
 
         # Create a button to clear the text widget
         self.clear_convert_directory_widget_button = tk.Button(
@@ -156,7 +157,7 @@ class FileManagerApp:
 
         # Create a Text widget for displaying events
         self.convert_file_events_text = tk.Text(self.convert_file_page, height=30, width=120)
-        self.convert_file_events_text.pack(pady=10)
+        self.convert_file_events_text.pack(pady=10, padx=10, fill="both", expand=True)
 
         # Create a button to clear the text widget
         self.clear_convert_file_widget_button = tk.Button(
@@ -196,44 +197,81 @@ class FileManagerApp:
         Utils.clear_widget(self.convert_file_events_text)
 
     def create_merge_pdf_files_widgets(self):
-        select_files_button = tk.Button(self.merge_pdf_page, text="Select Files", command=self.select_files)
-        select_files_button.grid(row=0, column=0, pady=10, padx=10, sticky="w")
+        # Top controls
+        top_frame = tk.Frame(self.merge_pdf_page)
+        top_frame.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 0))
+
+        select_files_button = tk.Button(
+            top_frame,
+            text="Select Files",
+            command=self.select_files,
+            width=15
+        )
+        select_files_button.pack(side="left")
 
         label_convert_file = tk.Label(
             self.merge_pdf_page,
-            text="Please select files. Supported file type is only .pdf . Any other file type will be ignored."
+            text="Please select files. Supported file type is only .pdf. Any other file type will be ignored."
         )
-        label_convert_file.grid(row=1, column=0, pady=10, padx=10, sticky="w")
+        label_convert_file.grid(row=1, column=0, columnspan=3, sticky="w", padx=10, pady=(5, 10))
 
-        # Create a Listbox for displaying selected files
-        self.selected_files_listbox = tk.Listbox(self.merge_pdf_page, selectmode=tk.SINGLE, height=35, width=150)
-        self.selected_files_listbox.grid(row=2, column=0, rowspan=4, pady=10, padx=10, sticky="nsew")
+        # Listbox
+        self.selected_files_listbox = tk.Listbox(
+            self.merge_pdf_page,
+            selectmode=tk.SINGLE,
+            height=30,
+            width=120
+        )
+        self.selected_files_listbox.grid(row=2, column=0, sticky="nsew", padx=(10, 0), pady=10)
 
-        scrollbar = ttk.Scrollbar(self.merge_pdf_page, command=self.selected_files_listbox.yview)
-        scrollbar.grid(row=2, column=1, rowspan=4, pady=10, sticky="nse")
+        scrollbar = ttk.Scrollbar(
+            self.merge_pdf_page,
+            command=self.selected_files_listbox.yview
+        )
+        scrollbar.grid(row=2, column=1, sticky="ns", pady=10)
         self.selected_files_listbox.config(yscrollcommand=scrollbar.set)
 
-        # Create buttons for moving files up and down
-        move_up_button = tk.Button(self.merge_pdf_page, text="Move Up",
-                                   command=lambda: self.move_item_up(self.selected_files_listbox))
-        move_up_button.grid(row=2, column=2, pady=10, padx=10, sticky="e")
+        # Buttons frame (right side)
+        buttons_frame = tk.Frame(self.merge_pdf_page)
+        buttons_frame.grid(row=2, column=2, sticky="n", padx=10, pady=10)
 
-        move_down_button = tk.Button(self.merge_pdf_page, text="Move Down",
-                                     command=lambda: self.move_item_down(self.selected_files_listbox))
-        move_down_button.grid(row=3, column=2, pady=10, padx=10, sticky="e")
+        BUTTON_WIDTH = 15
 
-        # Create a Button for deleting the selected file
-        delete_button = tk.Button(self.merge_pdf_page, text="Delete",
-                                  command=lambda: self.delete_item(self.selected_files_listbox))
-        delete_button.grid(row=4, column=2, pady=10, padx=10, sticky="e")
+        tk.Button(
+            buttons_frame,
+            text="Move Up",
+            width=BUTTON_WIDTH,
+            command=lambda: self.move_item_up(self.selected_files_listbox)
+        ).pack(pady=4)
 
-        start_button = tk.Button(self.merge_pdf_page, text="Merge Pdfs",
-                                 command=lambda: self.start_merger(self.merge_file_list))
-        start_button.grid(row=5, column=2, pady=10, padx=10, sticky="e")
+        tk.Button(
+            buttons_frame,
+            text="Move Down",
+            width=BUTTON_WIDTH,
+            command=lambda: self.move_item_down(self.selected_files_listbox)
+        ).pack(pady=4)
 
-        # Create a label to show completion status
+        tk.Button(
+            buttons_frame,
+            text="Delete",
+            width=BUTTON_WIDTH,
+            command=lambda: self.delete_item(self.selected_files_listbox)
+        ).pack(pady=4)
+
+        tk.Button(
+            buttons_frame,
+            text="Merge PDFs",
+            width=BUTTON_WIDTH,
+            command=lambda: self.start_merger(self.merge_file_list)
+        ).pack(pady=(12, 0))
+
+        # Status label
         self.status_label = tk.Label(self.merge_pdf_page, text="")
-        self.status_label.grid(row=6, column=0, columnspan=3, pady=10, padx=10)
+        self.status_label.grid(row=3, column=0, columnspan=3, pady=10)
+
+        # Grid weight for resizing
+        self.merge_pdf_page.grid_columnconfigure(0, weight=1)
+        self.merge_pdf_page.grid_rowconfigure(2, weight=1)
 
     def select_files(self):
         files = filedialog.askopenfilenames()
@@ -304,7 +342,7 @@ class FileManagerApp:
         separator.pack(fill="x", pady=10)
 
         self.ocr_pdf_events_text = tk.Text(self.ocr_pdf_page, height=30, width=120)
-        self.ocr_pdf_events_text.pack(pady=10)
+        self.ocr_pdf_events_text.pack(pady=10, padx=10, fill="both", expand=True)
 
         self.clear_ocr_pdf_widget_button = tk.Button(
             self.ocr_pdf_page,
