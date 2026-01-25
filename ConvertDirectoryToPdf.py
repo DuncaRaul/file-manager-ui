@@ -22,15 +22,16 @@ def convert_directory(directory_path, text_widget):
                 combine_images_no_subdirectory(directory_path, log_file)
                 log_event(text_widget, f"Processing completed for PDF\n")
             else:
+                pdf_file_number = 1
                 for manga in pdf_list:
                     sub_directory_paths = get_all_subdirectories(manga)
                     pdf_file_name = get_pdf_file_name(directory_path, manga, sub_directory_paths)
-                    log_event(text_widget, f"Processing started for {pdf_file_name[:-1]}\n")
+                    log_event(text_widget, f"Processing started for {pdf_file_name}{pdf_file_number}\n")
 
                     combine_images_into_pdf(manga, sub_directory_paths, output_directory, pdf_file_name, log_file)
 
-                    log_event(text_widget, f"Processing completed for {pdf_file_name[:-1]}\n")
-
+                    log_event(text_widget, f"Processing completed for {pdf_file_name}{pdf_file_number}\n")
+                    pdf_file_number += 1
             log_event(text_widget, "Conversion completed.")
 
     Thread(target=process_directory, daemon=True).start()
