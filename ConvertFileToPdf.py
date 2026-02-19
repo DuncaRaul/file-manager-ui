@@ -1,3 +1,4 @@
+from pathlib import Path
 from threading import Thread
 from fpdf import FPDF
 from docx2pdf import convert
@@ -49,8 +50,13 @@ def convert_word_to_pdf(input_file):
     convert(input_file, output_pdf)
 
 
-def convert_image_to_pdf(input_file):
-    output_pdf = input_file.replace(".jpg", ".pdf")
+def convert_image_to_pdf(input_file: str) -> Path:
+    input_path = Path(input_file)
+    output_path = input_path.with_suffix(".pdf")
 
-    img = Image.open(input_file)
-    img.save(output_pdf, "PDF")
+    with Image.open(input_path) as img:
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        img.save(output_path, "PDF")
+
+    return output_path

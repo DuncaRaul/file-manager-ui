@@ -262,7 +262,7 @@ class FileManagerApp:
             buttons_frame,
             text="Merge PDFs",
             width=BUTTON_WIDTH,
-            command=lambda: self.start_merger(self.merge_file_list)
+            command=self.start_merger_from_listbox
         ).pack(pady=(12, 0))
 
         # Status label
@@ -308,6 +308,10 @@ class FileManagerApp:
         selected_index = listbox.curselection()
         if selected_index:
             listbox.delete(selected_index)
+
+    def start_merger_from_listbox(self):
+        files = list(self.selected_files_listbox.get(0, tk.END))
+        self.start_merger(files)
 
     def start_merger(self, merge_file_list):
         MergePdfs.merge_pdfs(merge_file_list, self.status_label)
